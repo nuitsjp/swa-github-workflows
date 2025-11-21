@@ -7,6 +7,7 @@ It manages submodules:
 ## Primary Directive
 
 - Think in English, interact with the user in Japanese.
+- Plans and artifacts must be written in Japanese.
 - Can execute GitHub CLI/Azure CLI. Will execute and verify them personally
   whenever possible.
 - When modifying the implementation, strictly adhere to the t-wada style of
