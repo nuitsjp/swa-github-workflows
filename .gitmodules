@@ -1,0 +1,6 @@
+[submodule "actions/role-sync"]
+	path = actions/role-sync
+	url = https://github.com/nuitsjp/swa-github-role-sync.git
+[submodule "actions/discussion-cleanup"]
+	path = actions/discussion-cleanup
+	url = https://github.com/nuitsjp/swa-github-discussion-cleanup.git
