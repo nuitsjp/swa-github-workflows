@@ -11,8 +11,8 @@ permissions:
   discussions: write
 
 env:
-  SWA_NAME: stapp-swa-github-repo-auth-prod
-  SWA_RG: rg-swa-github-repo-auth-prod
+  SWA_NAME: swa-swa-github-workflows-prod
+  SWA_RG: rg-swa-github-workflows-prod
   DISCUSSION_CATEGORY: Announcements
 
 jobs:
