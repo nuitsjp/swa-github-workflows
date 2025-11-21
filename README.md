@@ -116,3 +116,92 @@
 以上がドキュメント案です。ご確認の上、修正・追加したい項目があればお知らせください。
 
 [1]: https://stackoverflow.com/questions/66107901/should-actions-be-stored-in-a-separate-repo-or-nested-in-another?utm_source=chatgpt.com "Should actions be stored in a separate repo or nested in ..."
+
+---
+
+## 7. 実施状況と残タスク（2024-05-20 更新）
+
+README の計画に沿って、着手済みの内容と今後のアクションを整理しました。作業を引き継ぐ際は本節を最新化してください。
+
+### 7.1 ステップ 1：準備（完了）
+
+- `gh repo view nuitsjp/swa-github-discussion-cleanup` / `nuitsjp/swa-github-role-sync` で両アクション用リポジトリの存在と `main` ブランチを確認済み。
+- `git -C actions/role-sync tag --list` により `v1.0.0` 系タグを確認。次回タグ発行時はアクションリポジトリ側で `git tag vX.Y.Z && git push origin vX.Y.Z` を実行すること。
+- `actions/role-sync` / `actions/discussion-cleanup` 配下に README / LICENSE などの基本ドキュメントが揃っていることを確認。
+- 管理リポジトリ `swa-github-workflows` へのアクセスと書き込み権限を確認済み（本リポジトリでの作業）。
+
+### 7.2 ステップ 2：サブモジュール登録（完了）
+
+- `.gitmodules` に以下 2 つのサブモジュールを登録済み。
+  - `actions/role-sync` → `https://github.com/nuitsjp/swa-github-role-sync.git`
+  - `actions/discussion-cleanup` → `https://github.com/nuitsjp/swa-github-discussion-cleanup.git`
+- クローン直後は次のコマンドで初期化してください：
+
+  ```bash
+  git submodule sync --recursive
+  git submodule update --init --recursive
+  ```
+- 子リポジトリのタグ更新を取り込む場合：
+
+  ```bash
+  cd actions/role-sync   # または discussion-cleanup
+  git fetch --tags
+  git checkout v1.0.1    # 例：利用したいタグ
+  cd -
+  git add actions/role-sync
+  git commit -m "chore: bump role-sync submodule to v1.0.1"
+  ```
+
+### 7.3 ステップ 3：ワークフロー参照更新（未着手）
+
+現状 `.github/workflows` ディレクトリが存在しません。以下を参考に新規作成してください。
+
+1. `mkdir -p .github/workflows`。
+2. 例：ロール同期ワークフロー（`role-sync.yml`）。
+
+   ```yaml
+   name: Role Sync
+   on:
+     schedule:
+       - cron: "0 * * * *"
+     workflow_dispatch:
+   jobs:
+     sync:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+           with:
+             submodules: recursive
+         - name: Run role sync
+           uses: ./actions/role-sync
+           with:
+             github-token: ${{ secrets.ROLE_SYNC_GITHUB_TOKEN }}
+   ```
+
+3. ディスカッションクリーンアップ用ワークフローも同様に作成し、必要なシークレットを管理リポジトリに登録。
+4. 追加したワークフローの CI が通ることを確認したうえで PR を作成し、マージする。
+
+### 7.4 ステップ 4：旧リポジトリ整理（未着手）
+
+- `swa-github-role-sync` / `swa-github-discussion-cleanup` から不要なワークフロー定義（`/.github/workflows`）を削除するか、README で「管理は `swa-github-workflows` に移行済み」と明記してください。
+- 各リポジトリの README 冒頭に、利用方法・タグ案内・この管理リポジトリへのリンクを追加します。
+- Marketplace 公開方針を決める場合は issue を作成し、決定事項を README / RELEASE ノートに反映させます。
+
+### 7.5 ステップ 5：運用ルール策定（部分的に未実施）
+
+- サブモジュール更新フロー案：
+  1. 子リポジトリで修正 → `npm test` などを実施。
+  2. 子リポジトリでタグ付け。
+  3. 親リポジトリで `git submodule update --remote --merge` を実行。
+  4. Pull Request でレビュー。
+- バージョニング：SemVer を採用し、Breaking Change 時のみメジャーを上げる。
+- レビュー体制：最低 1 名承認、リリースチェックリスト（テスト結果・SWA への反映確認）を PR テンプレート化する。
+- 今後アクションが増えた場合は `actions/<action-name>` ディレクトリを追加し、同手順でサブモジュール登録。
+
+### 7.6 Azure Static Web Apps 連携メモ
+
+- `az staticwebapp list` により管理対象の SWA を棚卸し済み。
+- `az staticwebapp show -n stapp-swa-github-roles-provider -g rg-swa-github-roles-provider` で対象アプリの `repositoryUrl` が `https://github.com/nuitsjp/swa-github-repo-auth` であることを確認。ワークフロー更新後は SWA 側のデプロイトークン／ブランチ設定に変更が必要か確認してください。
+- 必要に応じて `az staticwebapp appsettings set` などでシークレットを管理し、GitHub ワークフローと整合を取ります。
+
+---
