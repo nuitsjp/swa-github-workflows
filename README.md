@@ -123,6 +123,8 @@
 
 README の計画に沿って、着手済みの内容と今後のアクションを整理しました。作業を引き継ぐ際は本節を最新化してください。
 
+> **補足**: 下記「残タスク」のうち、アクションアイテムは [TODO.md](TODO.md) にも一覧化しています。詳細な担当や優先度の調整に利用してください。
+
 ### 7.1 ステップ 1：準備（完了）
 
 - `gh repo view nuitsjp/swa-github-discussion-cleanup` / `nuitsjp/swa-github-role-sync` で両アクション用リポジトリの存在と `main` ブランチを確認済み。
@@ -187,13 +189,26 @@ README の計画に沿って、着手済みの内容と今後のアクション�
 - 今後アクションが増えた場合は `actions/<action-name>` ディレクトリを追加し、同手順でサブモジュール登録。
 - Secrets 運用：
   - `ROLE_SYNC_REPO_TOKEN`（PAT, repo+discussions）… role-sync リポジトリへの push / Discussion 操作に使用。
-  - `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` / `AZURE_SUBSCRIPTION_ID` … Azure Static Web Apps OIDC 用。
+ - `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` / `AZURE_SUBSCRIPTION_ID` … Azure Static Web Apps OIDC 用。
   - 必要に応じて SWA 関連の追加シークレットやデプロイトークンを整理する。
 
 ### 7.6 Azure Static Web Apps 連携メモ
 
 - `az staticwebapp list` により管理対象の SWA を棚卸し済み。
-- `az staticwebapp show -n stapp-swa-github-roles-provider -g rg-swa-github-roles-provider` で対象アプリの `repositoryUrl` が `https://github.com/nuitsjp/swa-github-repo-auth` であることを確認。ワークフロー更新後は SWA 側のデプロイトークン／ブランチ設定に変更が必要か確認してください。
-- 必要に応じて `az staticwebapp appsettings set` などでシークレットを管理し、GitHub ワークフローと整合を取ります。
+  - `az staticwebapp show -n stapp-swa-github-roles-provider -g rg-swa-github-roles-provider` で対象アプリの `repositoryUrl` が `https://github.com/nuitsjp/swa-github-repo-auth` であることを確認。ワークフロー更新後は SWA 側のデプロイトークン／ブランチ設定に変更が必要か確認してください。
+  - 必要に応じて `az staticwebapp appsettings set` などでシークレットを管理し、GitHub ワークフローと整合を取ります。
+
+---
+
+## 8. これまでの対応履歴（2024-05-20）
+
+| 日時 | 実施内容 |
+| --- | --- |
+| 2024-05-20 AM | `gh auth status` / `az account show` / `az staticwebapp list` / `... show` で GitHub・Azure 双方の認証状態と対象 SWA (`stapp-swa-github-roles-provider`) の紐付けを確認。 |
+| 2024-05-20 AM | `actions/role-sync` で `npm ci` → `npm run test` を実施し、52 テスト・100% カバレッジ維持を確認。CI 成果を README（7.3 節）に反映。 |
+| 2024-05-20 AM | `actions/discussion-cleanup` サブモジュールに独立アクションを新規実装。`npm run package` で `dist/` を生成し、`feat: add discussion cleanup action` として `nuitsjp/swa-github-discussion-cleanup` の `main` へ push。 |
+| 2024-05-20 PM | `actions/role-sync` リポジトリから `.github/workflows/*.yml` を削除し、README/README.ja に管理リポジトリ移行の注意書きを追加して `chore: move workflows to management repo` を push。 |
+| 2024-05-20 PM | 管理リポジトリ `.github/workflows` に `role-sync-*.yml` を追加し、サブモジュール参照・Azure ログイン・PAT ベースリリースなど一連のジョブを統合。`feat: manage role-sync workflows centrally` として push 済み。 |
+| 2024-05-20 PM | README セクション 7 を更新し、Secrets 方針・残タスク・Azure 連携メモを整理。後続タスクを `TODO.md` にも転記。 |
 
 ---
