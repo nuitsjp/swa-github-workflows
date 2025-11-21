@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  ROLE_SYNC_REPO: nuitsjp/swa-github-role-sync
+  # ROLE_SYNC_REPO removed, hardcoded below
 
 jobs:
   release:
@@ -73,14 +73,14 @@ jobs:
       - name: Push release tag
         working-directory: actions/role-sync
         run: |
-          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/${{ env.ROLE_SYNC_REPO }}.git "${{ steps.meta.outputs.tag }}"
+          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/nuitsjp/swa-github-role-sync.git "${{ steps.meta.outputs.tag }}"
 
       - name: Update floating tag
         if: steps.meta.outputs.is_prerelease != 'true'
         working-directory: actions/role-sync
         run: |
           git tag -f v1 "${{ steps.meta.outputs.tag }}"
-          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/${{ env.ROLE_SYNC_REPO }}.git v1 --force
+          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/nuitsjp/swa-github-role-sync.git v1 --force
 
       - name: Publish GitHub Release
         env:
@@ -88,11 +88,11 @@ jobs:
         run: |
           tag="${{ steps.meta.outputs.tag }}"
           is_prerelease="${{ steps.meta.outputs.is_prerelease }}"
-          if gh release view "$tag" --repo ${{ env.ROLE_SYNC_REPO }} >/dev/null 2>&1; then
+          if gh release view "$tag" --repo nuitsjp/swa-github-role-sync >/dev/null 2>&1; then
             echo "Release $tag already exists. Skipping creation."
             exit 0
           fi
-          flags=(--repo ${{ env.ROLE_SYNC_REPO }} --generate-notes --title "Release $tag")
+          flags=(--repo nuitsjp/swa-github-role-sync --generate-notes --title "Release $tag")
           if [[ "$is_prerelease" == "true" ]]; then
             flags+=(--prerelease)
           else

@@ -13,7 +13,6 @@ permissions:
   discussions: write
 
 env:
-  ROLE_SYNC_REPO: nuitsjp/swa-github-role-sync
   DISCUSSION_CATEGORY: Announcements
 
 jobs:
@@ -28,7 +27,6 @@ jobs:
         uses: ./actions/discussion-cleanup
         with:
           github-token: ${{ secrets.ROLE_SYNC_REPO_TOKEN || secrets.GITHUB_TOKEN }}
-          target-repo: ${{ env.ROLE_SYNC_REPO }}
           discussion-category-name: ${{ env.DISCUSSION_CATEGORY }}
           expiration-hours: 24
           cleanup-mode: ${{ github.event.inputs.cleanup-mode }}

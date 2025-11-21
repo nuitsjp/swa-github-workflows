@@ -23,7 +23,6 @@ permissions:
 
 env:
   NODE_VERSION_FILE: actions/role-sync/.node-version
-  ROLE_SYNC_REPO: nuitsjp/swa-github-role-sync
 
 jobs:
   lint:
@@ -231,7 +230,7 @@ jobs:
           ROLE_SYNC_REPO_TOKEN: ${{ secrets.ROLE_SYNC_REPO_TOKEN }}
         run: |
           if [ -z "$ROLE_SYNC_REPO_TOKEN" ]; then
-            echo "ROLE_SYNC_REPO_TOKEN is required to push license updates to $ROLE_SYNC_REPO"
+            echo "ROLE_SYNC_REPO_TOKEN is required to push license updates to nuitsjp/swa-github-role-sync"
             exit 1
           fi
           git config --local user.email "licensed-ci@users.noreply.github.com"
@@ -242,7 +241,7 @@ jobs:
             exit 0
           fi
           git commit -m "Auto-update license files"
-          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/$ROLE_SYNC_REPO.git HEAD:main
+          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/nuitsjp/swa-github-role-sync.git HEAD:main
 
       - name: Check Licenses
         run: licensed status
