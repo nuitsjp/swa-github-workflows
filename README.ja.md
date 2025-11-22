@@ -45,7 +45,7 @@
 - `role-sync-self-local.yml`：サブモジュール版の Action を直接呼び出し、ロール同期と招待 Discussion 掃除を検証するジョブです。
 - `role-sync-self-released.yml`：公開済み [`nuitsjp/swa-github-role-sync@v1`](https://github.com/nuitsjp/swa-github-role-sync/tree/v1) を使った検証ジョブ。ローカル版との差分テストに利用します。
 - `deploy-site.yml`：`site/` を SWA にデプロイし、/.auth/me でロール割り当てを確認するためのサイトを公開します。
-- `role-sync-delete-discussions.yml`：開発中に残った招待 Discussion を手動／一括で削除するためのワークフローです。
+- `delete-discussions.yml`：開発中に残った招待 Discussion を手動／一括で削除するためのワークフローです。
 
 ## 同梱アクション
 
@@ -88,7 +88,7 @@
 ## 開発メモ
 
 - 定期運用にはリリース済み Action を利用する一方で、`role-sync-self-local.yml` で未リリースの変更を事前検証できます。
-- 招待 Discussion の削除だけが目的なら `role-sync-delete-discussions.yml` を `immediate` で起動して一括削除してください。
+- 招待 Discussion の削除だけが目的なら `delete-discussions.yml` を `immediate` で起動して一括削除してください。
 - サブモジュール更新後は `git status` で差分を確認し、必要なら各サブモジュール側でテスト（`npm ci`, `npm run verify` など）を実行してください。
 
 ## ライセンス
