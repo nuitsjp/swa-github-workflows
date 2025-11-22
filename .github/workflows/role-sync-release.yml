@@ -10,14 +10,11 @@ on:
 permissions:
   contents: read
 
-env:
-  # ROLE_SYNC_REPO removed, hardcoded below
-
 jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      ROLE_SYNC_REPO_TOKEN: ${{ secrets.ROLE_SYNC_REPO_TOKEN }}
+      ACTIONS_RELEASE_TOKEN: ${{ secrets.ACTIONS_RELEASE_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,8 +23,8 @@ jobs:
 
       - name: Ensure release token
         run: |
-          if [ -z "$ROLE_SYNC_REPO_TOKEN" ]; then
-            echo "ROLE_SYNC_REPO_TOKEN secret is required to release." >&2
+          if [ -z "$ACTIONS_RELEASE_TOKEN" ]; then
+            echo "ACTIONS_RELEASE_TOKEN secret is required to release." >&2
             exit 1
           fi
 
@@ -73,18 +70,18 @@ jobs:
       - name: Push release tag
         working-directory: actions/role-sync
         run: |
-          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/nuitsjp/swa-github-role-sync.git "${{ steps.meta.outputs.tag }}"
+          git push https://x-access-token:$ACTIONS_RELEASE_TOKEN@github.com/nuitsjp/swa-github-role-sync.git "${{ steps.meta.outputs.tag }}"
 
       - name: Update floating tag
         if: steps.meta.outputs.is_prerelease != 'true'
         working-directory: actions/role-sync
         run: |
           git tag -f v1 "${{ steps.meta.outputs.tag }}"
-          git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/nuitsjp/swa-github-role-sync.git v1 --force
+          git push https://x-access-token:$ACTIONS_RELEASE_TOKEN@github.com/nuitsjp/swa-github-role-sync.git v1 --force
 
       - name: Publish GitHub Release
         env:
-          GH_TOKEN: ${{ env.ROLE_SYNC_REPO_TOKEN }}
+          GH_TOKEN: ${{ env.ACTIONS_RELEASE_TOKEN }}
         run: |
           tag="${{ steps.meta.outputs.tag }}"
           is_prerelease="${{ steps.meta.outputs.is_prerelease }}"

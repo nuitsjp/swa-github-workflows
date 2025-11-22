@@ -26,7 +26,7 @@ jobs:
       - name: Cleanup expired discussions
         uses: ./actions/discussion-cleanup
         with:
-          github-token: ${{ secrets.ROLE_SYNC_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.ACTIONS_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           discussion-category-name: ${{ env.DISCUSSION_CATEGORY }}
           expiration-hours: 24
           cleanup-mode: ${{ github.event_name == 'workflow_dispatch' && 'immediate' || 'expiration' }}
@@ -47,7 +47,7 @@ jobs:
       - name: Sync SWA roles (released action)
         uses: nuitsjp/swa-github-role-sync@v1
         with:
-          github-token: ${{ secrets.ROLE_SYNC_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.ACTIONS_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           swa-name: ${{ env.SWA_NAME }}
           swa-resource-group: ${{ env.SWA_RG }}
           discussion-category-name: ${{ env.DISCUSSION_CATEGORY }}
