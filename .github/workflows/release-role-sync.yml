@@ -5,7 +5,7 @@ on:
     inputs:
       version:
         description: 'SemVer string (e.g. 1.2.3 or 1.2.3-beta.1). Prefix "v" is optional.'
-        required: true
+        required: false
 
 permissions:
   contents: read
@@ -52,8 +52,23 @@ jobs:
           input="${{ github.event.inputs.version }}"
           input=${input#v}
           if [[ -z "$input" ]]; then
-            echo "::error::Version input is required" >&2
-            exit 1
+            latest_tag=$(git tag -l "v*" | sort -V | tail -n1)
+            if [[ -z "$latest_tag" ]]; then
+              input="1.0.0"
+            else
+              ver=${latest_tag#v}
+              if [[ $ver =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+                major="${BASH_REMATCH[1]}"
+                minor="${BASH_REMATCH[2]}"
+                patch="${BASH_REMATCH[3]}"
+                patch=$((patch + 1))
+                input="$major.$minor.$patch"
+              else
+                echo "::error::Latest tag $latest_tag is not in X.Y.Z format, cannot auto-increment."
+                exit 1
+              fi
+            fi
+            echo "Auto-incremented version to: $input"
           fi
           semver_regex='^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'
           if [[ ! $input =~ $semver_regex ]]; then
