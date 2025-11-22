@@ -9,7 +9,6 @@ permissions:
   id-token: write
   contents: read
   discussions: write
-  metadata: read
 
 env:
   SWA_NAME: stapp-swa-github-workflows-prod
@@ -25,7 +24,7 @@ jobs:
           submodules: recursive
 
       - name: Cleanup expired discussions
-        uses: nuitsjp/swa-github-discussion-cleanup@v1.0.3
+        uses: ./actions/discussion-cleanup
         with:
           github-token: ${{ secrets.ACTIONS_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           discussion-category-name: ${{ env.DISCUSSION_CATEGORY }}
@@ -35,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
@@ -43,8 +44,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Sync SWA roles (released action)
-        uses: nuitsjp/swa-github-role-sync@v1.0.4
+      - name: Sync SWA roles
+        uses: ./actions/role-sync
         with:
           github-token: ${{ secrets.ACTIONS_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           swa-name: ${{ env.SWA_NAME }}
