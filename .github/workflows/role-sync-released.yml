@@ -36,6 +36,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Checkout released action code
+        uses: actions/checkout@v4
+        with:
+          repository: nuitsjp/swa-github-role-sync
+          ref: v1.0.3
+          token: ${{ secrets.ACTIONS_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          path: released-role-sync
+
       - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
@@ -44,7 +52,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Sync SWA roles (released action)
-        uses: nuitsjp/swa-github-role-sync@v1.0.3
+        uses: ./released-role-sync
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           swa-name: ${{ env.SWA_NAME }}
