@@ -52,9 +52,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Sync SWA roles (released action)
-        uses: ./released-role-sync
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          swa-name: ${{ env.SWA_NAME }}
-          swa-resource-group: ${{ env.SWA_RG }}
-          discussion-category-name: ${{ env.DISCUSSION_CATEGORY }}
+        run: node dist/sync.js
+        working-directory: released-role-sync
+        env:
+          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_SWA_NAME: ${{ env.SWA_NAME }}
+          INPUT_SWA_RESOURCE_GROUP: ${{ env.SWA_RG }}
+          INPUT_DISCUSSION_CATEGORY_NAME: ${{ env.DISCUSSION_CATEGORY }}
