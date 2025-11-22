@@ -1,8 +1,4 @@
-# Project Context
-This repository `swa-github-workflows` is a management repository for GitHub Actions related to SWA (Static Web Apps) role synchronization and discussion cleanup.
-It manages submodules:
-- `swa-github-role-sync`
-- `swa-github-discussion-cleanup`
+# Repository Guidelines
 
 ## Primary Directive
 
@@ -14,11 +10,67 @@ It manages submodules:
   Test-Driven Development (TDD). RED-GREEN-REFACTOR cycle must be followed
   without exception.
 
-# Coding Guidelines
-- Use TypeScript for actions.
-- Follow GitHub Actions best practices.
-- Documentation should be in Japanese (as per README).
+## Project Structure & Module Organization
 
-# Architecture
-- Centralized workflow management in this repository.
-- Actions are implemented in submodules.
+- Source lives in `src/` (`main.ts` entrypoint; `azure.ts` for CLI calls,
+  `github.ts` for API access, `templates.ts` for discussion text, `plan.ts` for
+  diff logic).
+- Tests are in `__tests__/` (Jest), and built output ships from `dist/` (checked
+  in for the GitHub Action runner).
+- Workflows, docs, and assets: `docs/` (design notes), `badges/` (coverage SVG),
+  `coverage/` (HTML report), `site/` (sample SWA site).
+- `action.yml` defines inputs/outputs; keep it in sync with `src` defaults when
+  editing templates.
+
+## Build, Test, and Development Commands
+
+- Install: `npm install` (Node 20+ required).
+- Lint: `npm run lint` (ESLint with TypeScript/Prettier rules).
+- Test: `npm test` (Jest, Node ESM mode); CI uses `npm run ci-test`.
+- Format check/fix: `npm run format:check` / `npm run format:write`;
+  Since docs and workflow YAML are also managed by Prettier, you must run
+  `npm run format:write` after editing them, otherwise the Format & Lint job
+  will fail.
+- Package: `npm run package` (Rollup bundle to `dist/`); full pipeline:
+  `npm run all`.
+- CI parity check: `npm run verify` (runs format check + lint + test + Rollup +
+  `dist/` diff check, mirroring the Format/Lint + Lint/Check Transpiled
+  workflows).
+- Local action dry-run: `npm run local-action` with `.env` providing inputs.
+
+## Coding Style & Naming Conventions
+
+- TypeScript, ES modules, strict typing favored; prefer `async/await` over raw
+  promises.
+- Filenames are kebab/flat case (`azure.ts`, `github.ts`); exported
+  classes/types PascalCase, functions/variables camelCase.
+- Keep action inputs/outputs mirrored between `action.yml` and `src/types.ts`.
+- Prettier handles formatting (2-space indent, single quotes per config); run
+  before committing or rely on `npm run bundle`.
+- For Japanese documentation, do not insert spaces between Japanese characters
+  and English words (e.g., `SWA任意ロール`).
+- For Japanese documentation, use full-width parentheses `（）`, do not omit
+  long vowel marks in Katakana words (e.g., `パラメーター`), and use Hiragana
+  for words that are typically written in Hiragana in formal writing (e.g.,
+  `すでに`).
+
+## Testing Guidelines
+
+- Jest with `@jest/globals`; tests reside in `__tests__/*.{test,spec}.ts`.
+- Prefer table-driven cases for templating and plan-diff logic; mock external
+  APIs/CLI calls (GitHub/Azure) rather than hitting network.
+- Aim to cover role sync edge cases: admin vs write mapping, removed users,
+  discussion templating.
+- Generate/update coverage badge via `npm run coverage` after meaningful test
+  additions.
+
+## Commit & Pull Request Guidelines
+
+- Use concise, imperative titles; conventional prefixes (`feat:`, `fix:`,
+  `chore:`) are welcome and common in history.
+- Include summary of behavior change and affected inputs/outputs; mention
+  discussion template or plan logic changes explicitly.
+- Link related issues or workflows; add before/after notes or screenshots for
+  discussion body/template changes.
+- Run `npm run verify` before opening a PR (mirrors Lint + Check Transpiled);
+  ensure `dist/` is refreshed when behavior changes.
