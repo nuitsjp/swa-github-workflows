@@ -47,6 +47,26 @@
    - `ROLE_SYNC_APP_PRIVATE_KEY`: Private key (`.pem` の中身。改行込み)
 8. 以上で `role-sync-local.yml` と `role-sync-released.yml` が `actions/create-github-app-token@v1` を使ってコラボレータ情報や Discussion API へアクセスできるようになります。
 
+#### CLI で行えること／行えないこと
+
+- GitHub App 自体の新規作成と Private key のダウンロードは現在ブラウザ UI でのみ提供されています（CLI/API では未サポート）。Step 1〜5 は Web UI で実施してください。
+- 既存 App/Installation の ID を確認したい場合は、個人アクセストークンや `gh auth login` 済みアカウントで以下のように取得できます。
+
+  ```powershell
+  # ログインしているアカウントに紐づく GitHub App (Owner) と Installation ID 一覧
+  gh api user/installations --jq '.installations[] | {id, account: .account.login, repositories: .repository_selection}'
+  ```
+
+- Secrets 登録は CLI で実行可能です。リポジトリ単位の場合:
+
+  ```powershell
+  gh secret set ROLE_SYNC_APP_ID --body "123456"
+  gh secret set ROLE_SYNC_APP_INSTALLATION_ID --body "99999999"
+  gh secret set ROLE_SYNC_APP_PRIVATE_KEY < role-sync-app.private-key.pem
+  ```
+
+  Organization Secret として共有する場合は `--org <ORG>` オプションを付け、必要に応じて `--repos <repo1,repo2>` で公開範囲を絞ってください。
+
 ### Azure
 
 - 対象 SWA は Standard プラン以上で、GitHub 認証プロバイダーを有効化していること。
