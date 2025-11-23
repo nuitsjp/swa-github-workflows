@@ -102,8 +102,8 @@
 
 | ワークフロー | 役割 | 主な手動入力 |
 | --- | --- | --- |
-| `Role Sync - Release` | `actions/role-sync` サブモジュールのリリース。新しい SemVer タグを作成し、GitHub Release を公開します。 | `version`: リリースしたい SemVer 文字列（例 `1.1.0-beta.0`）。`ACTIONS_RELEASE_TOKEN` の権限を確認してから実行してください。 |
-| `Discussion Cleanup - Release` | `actions/discussion-cleanup` サブモジュールのリリース。ロール同期リリースと同様にタグと GitHub Release を生成します。 | `version`: リリースしたい SemVer 文字列。`ACTIONS_RELEASE_TOKEN` が両リポジトリへ書き込めることを確認してください。 |
+| `Role Sync - Release` | `actions/role-sync` サブモジュールの SemVer タグを作成します（GitHub Release の作成は Web UI で実施）。 | `version`: 作成したい SemVer 文字列（例 `1.1.0-beta.0`）。`ACTIONS_RELEASE_TOKEN` の権限を確認してから実行してください。 |
+| `Discussion Cleanup - Release` | `actions/discussion-cleanup` サブモジュールの SemVer タグを作成します（GitHub Release の作成は Web UI で実施）。 | `version`: 作成したい SemVer 文字列。`ACTIONS_RELEASE_TOKEN` が両リポジトリへ書き込めることを確認してください。 |
 | `Role Sync - Self Sync (Local Action)` | チェックアウト済みサブモジュールを使ってロール同期と招待 Discussion 整理をテストします。 | なし（既定値を使用）。必要に応じて `.github/workflows/role-sync-self-local.yml` の `env` を編集します。 |
 | `Role Sync - Self Sync (Released Package)` | 公開済み `nuitsjp/swa-github-role-sync@v1` の挙動を本番相当設定で検証します。 | なし。必要に応じて `SWA_NAME` などの環境変数を編集。 |
 | `Role Sync - Deploy Site` | `site/` の静的サイトを SWA にデプロイし、/.auth/me でロールを確認できるようにします。 | なし。 |
