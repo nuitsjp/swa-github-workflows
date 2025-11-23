@@ -19,7 +19,7 @@
 2. **タグ作成・Release 作成 (このリポジトリから実行)**
    - `Release Role Sync` (`.github/workflows/release-role-sync.yml`) または `Release Discussion Cleanup` (`.github/workflows/release-discussion-cleanup.yml`) を手動実行。
    - `version` 未指定の場合は最新 SemVer を自動インクリメント。プレリリース (`-beta` など) 以外はメジャーのローリングタグ（例 `v1`）も更新。
-   - ワークフローがサブモジュールリポジトリで GitHub Release を自動作成し、`GITHUB_STEP_SUMMARY` にリポジトリトップ・タグ・Release URL を出力するので結果画面で確認。
+   - ワークフローがサブモジュールリポジトリで GitHub Release を自動作成し、`generate-notes` 相当のリリースノートを生成、`GITHUB_STEP_SUMMARY` にリポジトリトップ・タグ・Release URL を出力するので結果画面で確認。
 3. **Marketplace 公開 (初回のみ UI で確認)**
    - すでに Marketplace 公開済みならワークフローによる Release 作成で新バージョンが反映されます。
    - 初回公開時のみ、GitHub Release 作成画面の「Publish this action to the GitHub Marketplace」にチェックが入っているかを確認してください（UI 操作が必要）。

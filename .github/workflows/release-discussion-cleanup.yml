@@ -106,16 +106,29 @@ jobs:
           GH_TOKEN: ${{ env.ACTIONS_RELEASE_TOKEN }}
         run: |
           set -euo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+          prev_tag=$(git tag -l "v*" | grep -v "^${tag}$" | sort -V | tail -n1 || true)
+          tmp_notes=$(mktemp)
+          if [[ -n "$prev_tag" ]]; then
+            gh api repos/nuitsjp/swa-github-discussion-cleanup/releases/generate-notes \
+              -f tag_name="$tag" \
+              -f previous_tag_name="$prev_tag" \
+              --jq .body > "$tmp_notes"
+          else
+            gh api repos/nuitsjp/swa-github-discussion-cleanup/releases/generate-notes \
+              -f tag_name="$tag" \
+              --jq .body > "$tmp_notes"
+          fi
           prerelease_flag=()
           if [[ "${{ steps.meta.outputs.is_prerelease }}" == "true" ]]; then
             prerelease_flag+=(--prerelease)
           fi
-          gh release create "${{ steps.meta.outputs.tag }}" \
+          gh release create "$tag" \
             --repo nuitsjp/swa-github-discussion-cleanup \
-            --title "${{ steps.meta.outputs.tag }}" \
-            --notes "Automated release for ${{ steps.meta.outputs.tag }}" \
+            --title "$tag" \
+            --notes-file "$tmp_notes" \
             "${prerelease_flag[@]}"
-          release_url=$(gh release view "${{ steps.meta.outputs.tag }}" --repo nuitsjp/swa-github-discussion-cleanup --json url --jq .url)
+          release_url=$(gh release view "$tag" --repo nuitsjp/swa-github-discussion-cleanup --json url --jq .url)
           echo "release_url=$release_url" >> "$GITHUB_ENV"
 
       - name: Publish release summary
