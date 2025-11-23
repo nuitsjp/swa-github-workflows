@@ -25,12 +25,27 @@
 
 ### GitHub
 
-- Discussion を有効化したリポジトリで運用します。`Announcements` など招待掲示用カテゴリを作成してください。
-- 以下のシークレットを Organization またはリポジトリに登録します。
-  - `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` / `AZURE_SUBSCRIPTION_ID`：OIDC で `azure/login` を実行するサービス プリンシパル。
-  - `AZURE_STATIC_WEB_APPS_API_TOKEN`：`Azure/static-web-apps-deploy@v1` で検証サイトを更新するためのトークン。
-- `ACTIONS_RELEASE_TOKEN`：`repo`、`discussions`、`read:org`を含むPAT。`nuitsjp/swa-github-role-sync`と`nuitsjp/swa-github-discussion-cleanup`の両方に書き込み権限を付けたトークンを1つ発行し、本リポジトリのシークレットとして登録します（運用で使い回すため頻繁に変更しません）。ローカル検証ワークフローでは未設定時に`GITHUB_TOKEN`をフォールバックしますが、リリースでは必須です。
-- ワークフロー全体で `discussions: write`、`id-token: write`、`contents: read` 権限が必要です。`Settings > Actions > General` で既定権限を確認してください。
+- Discussion を利用するリポジトリで、招待通知用のカテゴリー（例: `Announcements`）を作成しておいてください。
+- 以下のシークレットを Organization もしくはリポジトリに登録します。
+  - `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` / `AZURE_SUBSCRIPTION_ID`: OIDC で `azure/login` を実行するサービス プリンシパル用。
+  - `AZURE_STATIC_WEB_APPS_API_TOKEN`: `Azure/static-web-apps-deploy@v1` でサイトをデプロイするためのトークン。
+- `ACTIONS_RELEASE_TOKEN`: `repo`・`discussions`・`read:org` を付与した PAT。主にサブリポジトリのリリース自動化で利用します（role-sync 系 workflow では GitHub App に切り替え済み）。
+- `ROLE_SYNC_APP_ID` / `ROLE_SYNC_APP_INSTALLATION_ID` / `ROLE_SYNC_APP_PRIVATE_KEY`: ローカルの role sync job が GitHub App トークンを生成するための値です。後述の手順でアプリを作成し、Secrets に保存してください。
+- すべての workflow が動作できるよう、`Settings > Actions > General` で `discussions: write`・`id-token: write`・`contents: read` を許可しておきます。
+
+### GitHub App の作成手順
+
+1. GitHub の「Developer settings > GitHub Apps」から「New GitHub App」を作成します。
+2. App name / Homepage URL などを入力し、Webhook は必要でなければ空欄のままで問題ありません。
+3. **Repository permissions** で `Administration (Read-only)` と `Discussions (Read & write)` を付与します。Organization メンバー情報が必要な場合は **Organization permissions** で `Members (Read-only)` も許可してください。
+4. 対象 Organization / リポジトリにアプリをインストールします。
+5. App 設定画面で `App ID` を控え、`Generate a private key` から取得した `.pem` を保存します。
+6. `Install App` 画面や API を用いて、対象リポジトリの **Installation ID** を確認します（インストール URL の末尾に記載されています）。
+7. 取得した 3 つの値を GitHub Secrets に登録します。
+   - `ROLE_SYNC_APP_ID`: GitHub App ID
+   - `ROLE_SYNC_APP_INSTALLATION_ID`: Installation ID
+   - `ROLE_SYNC_APP_PRIVATE_KEY`: Private key (`.pem` の中身。改行込み)
+8. 以上で `role-sync-local.yml` と `role-sync-released.yml` が `actions/create-github-app-token@v1` を使ってコラボレータ情報や Discussion API へアクセスできるようになります。
 
 ### Azure
 
