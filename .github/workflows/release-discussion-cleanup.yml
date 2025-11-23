@@ -100,3 +100,12 @@ jobs:
           major_version=$(echo "${{ steps.meta.outputs.tag }}" | cut -d. -f1)
           git tag -f "$major_version" "${{ steps.meta.outputs.tag }}"
           git push https://x-access-token:$ACTIONS_RELEASE_TOKEN@github.com/nuitsjp/swa-github-discussion-cleanup.git "$major_version" --force
+
+      - name: Publish release summary
+        run: |
+          {
+            echo "## Release Result"
+            echo ""
+            echo "- Repository: [nuitsjp/swa-github-discussion-cleanup](https://github.com/nuitsjp/swa-github-discussion-cleanup)"
+            echo "- Tag: ${{ steps.meta.outputs.tag }}"
+          } >> "$GITHUB_STEP_SUMMARY"
