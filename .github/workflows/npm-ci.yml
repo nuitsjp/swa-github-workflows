@@ -113,9 +113,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix: *projects
-    defaults:
-      run:
-        working-directory: ${{ matrix.workdir }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -155,8 +152,7 @@ jobs:
           cache-dependency-path: actions/role-sync/package-lock.json
 
       - name: Install Dependencies
-        working-directory: actions/role-sync
-        run: npm ci
+        run: npm --prefix 'actions/role-sync' ci
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -177,9 +173,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    defaults:
-      run:
-        working-directory: actions/role-sync
     steps:
       - uses: actions/checkout@v4
         with:
@@ -193,7 +186,7 @@ jobs:
           cache-dependency-path: actions/role-sync/package-lock.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm --prefix 'actions/role-sync' ci
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -207,10 +200,12 @@ jobs:
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
         name: Update Licenses
+        working-directory: actions/role-sync
         run: licensed cache
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
         name: Commit Licenses
+        working-directory: actions/role-sync
         env:
           ROLE_SYNC_REPO_TOKEN: ${{ secrets.ROLE_SYNC_REPO_TOKEN }}
         run: |
@@ -229,4 +224,5 @@ jobs:
           git push https://x-access-token:$ROLE_SYNC_REPO_TOKEN@github.com/nuitsjp/swa-github-role-sync.git HEAD:main
 
       - name: Check Licenses
+        working-directory: actions/role-sync
         run: licensed status
