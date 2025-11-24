@@ -6,8 +6,8 @@
 
 1. リポジトリを取得し、サブモジュールを初期化します。
    ```powershell
-   git clone https://github.com/nuitsjp/swa-github-workflows.git
-   cd swa-github-workflows
+   git clone https://github.com/nuitsjp/swa-github-role-sync-ops.git
+   cd swa-github-role-sync-ops
    git submodule update --init --recursive
    ```
 2. Node.js 20 以降を用意する（両 Action 共通）。必要なら `corepack enable` で pnpm/yarn を無効化し npm を使います。
