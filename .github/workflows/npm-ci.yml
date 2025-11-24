@@ -198,7 +198,8 @@ jobs:
 
       - uses: licensee/setup-licensed@v1.3.2
         with:
-          version: 4.x
+          # licensed 4.5.0 currently crashes with npm sources (NoMethodError), so pin to the latest stable release
+          version: 4.4.0
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
