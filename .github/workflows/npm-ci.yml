@@ -41,26 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: &projects
-        include:
-          - id: role-sync
-            display_name: Role Sync
-            workdir: actions/role-sync
-            node_version_file: actions/role-sync/.node-version
-            format_script: format:check
-            lint_script: lint
-            test_script: ci-test
-            package_script: package
-            dist_path: dist
-          - id: discussion-cleanup
-            display_name: Discussion Cleanup
-            workdir: actions/discussion-cleanup
-            node_version_file: actions/discussion-cleanup/.node-version
-            format_script: format:check
-            lint_script: ''
-            test_script: ''
-            package_script: package
-            dist_path: dist
+      matrix: ${{ fromJson('{"include":[{"id":"role-sync","display_name":"Role Sync","workdir":"actions/role-sync","node_version_file":"actions/role-sync/.node-version","format_script":"format:check","lint_script":"lint","test_script":"ci-test","package_script":"package","dist_path":"dist"},{"id":"discussion-cleanup","display_name":"Discussion Cleanup","workdir":"actions/discussion-cleanup","node_version_file":"actions/discussion-cleanup/.node-version","format_script":"format:check","lint_script":"","test_script":"","package_script":"package","dist_path":"dist"}]}') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -116,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: *projects
+      matrix: ${{ fromJson('{"include":[{"id":"role-sync","display_name":"Role Sync","workdir":"actions/role-sync","node_version_file":"actions/role-sync/.node-version","format_script":"format:check","lint_script":"lint","test_script":"ci-test","package_script":"package","dist_path":"dist"},{"id":"discussion-cleanup","display_name":"Discussion Cleanup","workdir":"actions/discussion-cleanup","node_version_file":"actions/discussion-cleanup/.node-version","format_script":"format:check","lint_script":"","test_script":"","package_script":"package","dist_path":"dist"}]}') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -177,6 +158,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      ROLE_SYNC_REPO_TOKEN_PRESENT: ${{ secrets.ROLE_SYNC_REPO_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -211,7 +194,7 @@ jobs:
         working-directory: actions/role-sync
         run: licensed cache
 
-      - if: ${{ github.event_name == 'workflow_dispatch' && secrets.ROLE_SYNC_REPO_TOKEN != '' }}
+      - if: ${{ github.event_name == 'workflow_dispatch' && env.ROLE_SYNC_REPO_TOKEN_PRESENT == 'true' }}
         name: Commit Licenses
         working-directory: actions/role-sync
         env:
