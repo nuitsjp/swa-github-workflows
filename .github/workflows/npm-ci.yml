@@ -56,9 +56,6 @@ jobs:
             test_script: ''
             package_script: package
             dist_path: dist
-    defaults:
-      run:
-        working-directory: ${{ matrix.workdir }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,24 +69,30 @@ jobs:
           cache-dependency-path: ${{ matrix.workdir }}/package-lock.json
 
       - name: Install Dependencies
+        working-directory: ${{ matrix.workdir }}
         run: npm ci
 
       - name: Format Check
+        working-directory: ${{ matrix.workdir }}
         run: npm run ${{ matrix.format_script }}
 
       - name: ESLint
         if: ${{ matrix.lint_script != '' }}
+        working-directory: ${{ matrix.workdir }}
         run: npm run ${{ matrix.lint_script }}
 
       - name: Run Tests
         if: ${{ matrix.test_script != '' }}
+        working-directory: ${{ matrix.workdir }}
         run: npm run ${{ matrix.test_script }}
 
       - name: Bundle
+        working-directory: ${{ matrix.workdir }}
         run: npm run ${{ matrix.package_script }}
 
       - name: Compare dist/
         id: diff
+        working-directory: ${{ matrix.workdir }}
         run: |
           if [ ! -d "${{ matrix.dist_path }}" ]; then
             echo "Expected ${{ matrix.dist_path }} directory does not exist.  See status below:"
@@ -131,9 +134,11 @@ jobs:
           cache-dependency-path: ${{ matrix.workdir }}/package-lock.json
 
       - name: Install Dependencies
+        working-directory: ${{ matrix.workdir }}
         run: npm ci
 
       - name: npm audit (production, high+)
+        working-directory: ${{ matrix.workdir }}
         run: npm audit --omit=dev --audit-level=high
 
   analyze:
