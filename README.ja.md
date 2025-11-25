@@ -8,7 +8,7 @@
 
 GitHubリポジトリの権限に基づいてAzure Static Web Apps（SWA）へのアクセスを制御するための再利用可能なGitHub Actionsを提供します。
 
-GitHubリポジトリ上のドキュメントをSWAでホストする際、「リポジトリへの書き込み権限を持つユーザーのみ閲覧可能」といったアクセス制御を実現できます。本Actionsは、GitHubリポジトリの権限（admin/write）をSWAのカスタムロールへ自動同期し、対象ユーザーにはGitHub Discussionを通じて招待リンクを通知します。
+GitHubリポジトリ上のドキュメントをSWAでホストする際、「リポジトリへの読み取り権限を持つユーザーのみ閲覧可能」といったアクセス制御を実現できます。本Actionsは、GitHubリポジトリの権限（admin/maintain/write/triage/read）をSWAのカスタムロールへ自動同期し、対象ユーザーにはGitHub Discussionを通じて招待リンクを通知します。
 
 ## Overview
 
@@ -26,15 +26,20 @@ GitHubリポジトリに関連するドキュメントをSWAで公開する場�
 
 | Action | 説明 |
 |--------|------|
-| [swa-github-role-sync](https://github.com/nuitsjp/swa-github-role-sync) | GitHubリポジトリのadmin/write権限を持つユーザーをSWAカスタムロールへ同期し、招待リンクをDiscussionで通知 |
+| [swa-github-role-sync](https://github.com/nuitsjp/swa-github-role-sync) | GitHubリポジトリの権限を持つユーザーをSWAカスタムロールへ同期し、招待リンクをDiscussionで通知 |
 | [swa-github-discussion-cleanup](https://github.com/nuitsjp/swa-github-discussion-cleanup) | 有効期限切れの招待Discussionを自動削除 |
 
 ## Features
 
 ### swa-github-role-sync
 
-- GitHub `admin` → SWAカスタムロール（デフォルト: `github-admin`）
-- GitHub `write`/`maintain` → SWAカスタムロール（デフォルト: `github-writer`）
+- GitHub権限とSWAロールの1:1マッピング（5段階）
+  - `admin` → `github-admin`
+  - `maintain` → `github-maintain`
+  - `write` → `github-write`
+  - `triage` → `github-triage`
+  - `read` → `github-read`
+- `minimum-permission`で同期対象の最小権限レベルを指定可能（デフォルト: `write`）
 - 差分検出による重複招待の抑制
 - ユーザーごとの招待Discussionを自動作成
 - `GITHUB_STEP_SUMMARY`への同期結果サマリー出力
@@ -89,7 +94,70 @@ gh secret set ROLE_SYNC_APP_PRIVATE_KEY < role-sync-app.private-key.pem
 
 Organization Secretにする場合は`--org <ORG>`を付け、必要なら公開範囲を`--repos`で絞ってください。
 
-### 2. ワークフローのセットアップ
+### 2. SWAのルート設定
+
+SWA側でロールベースのアクセス制御を有効にするには、`staticwebapp.config.json`に`routes`を設定します。
+
+#### 基本例: 特定ロール以上のユーザーのみアクセス許可
+
+```json
+{
+  "routes": [
+    {
+      "route": "/*",
+      "allowedRoles": ["github-admin", "github-maintain", "github-write"]
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "redirect": "/.auth/login/github",
+      "statusCode": 302
+    }
+  }
+}
+```
+
+#### ロール別のリソースアクセス制限
+
+管理者専用エリアと一般ユーザー向けエリアを分ける例：
+
+```json
+{
+  "routes": [
+    {
+      "route": "/admin/*",
+      "allowedRoles": ["github-admin"]
+    },
+    {
+      "route": "/internal/*",
+      "allowedRoles": ["github-admin", "github-maintain", "github-write"]
+    },
+    {
+      "route": "/*",
+      "allowedRoles": ["github-admin", "github-maintain", "github-write", "github-triage", "github-read"]
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "redirect": "/.auth/login/github",
+      "statusCode": 302
+    },
+    "403": {
+      "rewrite": "/403.html",
+      "statusCode": 403
+    }
+  }
+}
+```
+
+この例では:
+- `/admin/*`: `github-admin`ロールのみアクセス可能
+- `/internal/*`: `github-admin`, `github-maintain`, `github-write`ロールがアクセス可能
+- `/*`: すべての同期対象ロールがアクセス可能
+
+`allowedRoles`には、`minimum-permission`と`role-for-*`の設定に応じて許可するロールを指定してください。詳細は[Azure Static Web Appsのルート設定ドキュメント](https://learn.microsoft.com/ja-jp/azure/static-web-apps/configuration)を参照してください。
+
+### 3. ワークフローのセットアップ
 
 #### ロール同期ワークフローを追加
 
@@ -151,7 +219,7 @@ jobs:
           cleanup-mode: ${{ github.event_name == 'workflow_dispatch' && 'immediate' || 'expiration' }}
 ```
 
-### 3. ワークフローの実行
+### 4. ワークフローの実行
 
 ```bash
 # ロール同期を手動実行
@@ -164,7 +232,7 @@ gh run watch --exit-status
 gh workflow run cleanup-invite-discussions.yml --ref main
 ```
 
-### 4. 結果を確認
+### 5. 結果を確認
 
 - `GITHUB_STEP_SUMMARY`に招待件数・更新件数が表示されます。GitHub Web UIか`gh run view --log`で確認できます。
 - 招待Discussionが指定カテゴリーに作成され、本文に招待URLが含まれます。
@@ -239,12 +307,46 @@ Azure Cloud Adoption Frameworkの[リソース省略形ガイダンス](https://
 
 ## Configuration
 
+### 同期対象の権限レベルを変更する
+
+`minimum-permission`で同期対象とする最小権限レベルを指定できます：
+
+| `minimum-permission` | 同期対象 |
+|---------------------|---------|
+| `read` | read, triage, write, maintain, admin |
+| `triage` | triage, write, maintain, admin |
+| `write` | write, maintain, admin（デフォルト） |
+| `maintain` | maintain, admin |
+| `admin` | adminのみ |
+
+```yaml
+- uses: nuitsjp/swa-github-role-sync@v1
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    swa-name: my-swa-app
+    swa-resource-group: my-swa-rg
+    discussion-category-name: Announcements
+    minimum-permission: read  # read以上の全ユーザーを同期
+```
+
+### ロール名をカスタマイズする
+
+各GitHub権限に対応するSWAロール名を個別に設定できます：
+
+| パラメーター | デフォルト | 説明 |
+|-------------|-----------|------|
+| `role-for-admin` | `github-admin` | admin権限のSWAロール |
+| `role-for-maintain` | `github-maintain` | maintain権限のSWAロール |
+| `role-for-write` | `github-write` | write権限のSWAロール |
+| `role-for-triage` | `github-triage` | triage権限のSWAロール |
+| `role-for-read` | `github-read` | read権限のSWAロール |
+
+### その他の設定
+
 - **別リポジトリの権限で同期する**
   `target-repo`に`owner/repo`を指定し、`github-token`に対象リポジトリへアクセスできるPATを渡します。
-- **ロール名・テンプレートを変更する**
-  - GitHub `admin`に付与するロール: `role-for-admin`（既定: `github-admin`）
-  - GitHub `write`/`maintain`に付与するロール: `role-for-write`（既定: `github-writer`）
-  - テンプレートは`{login}` `{role}` `{inviteUrl}` `{swaName}` `{repo}` `{date}`などのプレースホルダーを利用可能。Discussion掃除側も同じテンプレートを設定してください。
+- **テンプレートを変更する**
+  テンプレートは`{login}` `{role}` `{inviteUrl}` `{swaName}` `{repo}` `{date}`などのプレースホルダーを利用可能。Discussion掃除側も同じテンプレートを設定してください。
 - **招待リンクの有効期限**
   `invitation-expiration-hours`（既定168時間）を変更すると、掃除ワークフローの`expiration-hours`も合わせる必要があります。
 - **カスタムドメインを使う**
