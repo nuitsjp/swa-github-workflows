@@ -13,6 +13,46 @@
 2. Node.js 20 以降を用意する（両 Action 共通）。必要なら `corepack enable` で pnpm/yarn を無効化し npm を使います。
 3. VS Code 拡張（ESLint, Prettier など）がある場合は自動整形を有効化しておくと差分が安定します。
 
+## リポジトリ構成
+
+```
+swa-github-role-sync-ops/
+├── .github/
+│   └── workflows/           # CI・リリース・運用ワークフロー
+│       ├── npm-ci.yml           # 両 Action の CI（format, lint, test, dist 検証）
+│       ├── deploy-site.yml      # サンプルサイトのデプロイ
+│       ├── role-sync-released.yml   # リリース版 Action によるロール同期
+│       ├── release-role-sync.yml    # Role Sync Action のリリース
+│       └── release-discussion-cleanup.yml  # Cleanup Action のリリース
+├── actions/
+│   ├── role-sync/           # swa-github-role-sync (サブモジュール)
+│   └── discussion-cleanup/  # swa-github-discussion-cleanup (サブモジュール)
+├── docs/
+│   ├── design.md            # 設計メモ
+│   ├── user-guide.md        # ユーザーガイド
+│   └── developer-guide.md   # 開発者ガイド
+├── site/                    # サンプル SWA サイト
+│   ├── index.html
+│   └── staticwebapp.config.json
+└── package.json             # npm workspaces 設定
+```
+
+## ローカルでの検証
+
+```powershell
+# 依存関係のインストール
+npm ci --workspaces
+
+# 全 Action の検証（format + lint + test + dist チェック）
+npm run verify
+
+# Role Sync Action のみ検証
+npm run verify:role-sync
+
+# Discussion Cleanup のみビルド
+npm run verify:discussion-cleanup
+```
+
 ## Role Sync Action の開発
 
 ```
@@ -37,9 +77,44 @@ npm run package  # rollup build + dist 更新
 - 現状テストは未整備のため、小さな純粋関数を意識して実装し、将来のテスト追加に備えます。
 - 入力変更があれば `action.yml` と本リポジトリのドキュメントも更新します。
 
+## テスト駆動開発
+
+このリポジトリでは t-wada スタイルの TDD（RED-GREEN-REFACTOR）を採用しています：
+
+1. 失敗するテストを書く（RED）
+2. テストを通す最小限のコードを書く（GREEN）
+3. コードをリファクタリングする（REFACTOR）
+
+```powershell
+cd actions/role-sync
+npm test         # テスト実行
+npm run coverage # カバレッジ計測
+```
+
 ## サンプルサイトの検証
 
 SWA へのデプロイと /.auth/me の確認は `Role Sync - Deploy Site` ワークフローで行います。GitHub UI から手動実行し、ロール反映をブラウザで確認してください。
+
+## ワークフロー一覧
+
+| ワークフロー | 説明 | トリガー |
+|-------------|------|---------|
+| `npm-ci.yml` | 両 Action の CI（format/lint/test/dist 検証） | PR, push, 手動 |
+| `deploy-site.yml` | サンプルサイトを SWA へデプロイ | push (`site/`), 手動 |
+| `role-sync-released.yml` | リリース版 Action でロール同期実行 | 毎週月曜 3:00 UTC, 手動 |
+| `role-sync-local.yml` | ローカルビルド版でロール同期（開発用） | 手動 |
+| `delete-discussions.yml` | 招待 Discussion の削除 | 手動 |
+| `release-role-sync.yml` | Role Sync Action のタグ作成・リリース | 手動 |
+| `release-discussion-cleanup.yml` | Cleanup Action のタグ作成・リリース | 手動 |
+| `security-scans.yml` | セキュリティスキャン | スケジュール |
+
+## コントリビュート
+
+1. フォークしてブランチを作成
+2. TDD でテストとコードを追加
+3. `npm run verify` が通ることを確認
+4. `dist/` を再生成（`npm run package`）してコミット
+5. Pull Request を作成
 
 ## リリース手順
 

@@ -48,7 +48,8 @@
 - Prettier handles formatting (2-space indent, single quotes per config); run
   before committing or rely on `npm run bundle`.
 - For Japanese documentation, do not insert spaces between Japanese characters
-  and English words (e.g., `SWA任意ロール`).
+  and alphanumeric words/symbols (e.g., write `SWAカスタムロール` not
+  `SWA カスタムロール`).
 - For Japanese documentation, use full-width parentheses `（）`, do not omit
   long vowel marks in Katakana words (e.g., `パラメーター`), and use Hiragana
   for words that are typically written in Hiragana in formal writing (e.g.,

@@ -28,6 +28,7 @@
 - Formatting is Prettier-driven (2 spaces, single quotes). Lint uses ESLint; run `npm run format:write` before committing to prevent churn.
 - Filenames stay kebab-case; exported types/classes in PascalCase, variables/functions in camelCase. Keep `action.yml` in sync with defaults/types when inputs change.
 - Do not hand-edit `dist/`; rebuild after logic or template changes and include the updated artifacts in the PR.
+- For Japanese documentation, do not insert spaces between Japanese characters and alphanumeric words/symbols (e.g., write `SWAカスタムロール` not `SWA カスタムロール`).
 
 ## Testing Guidelines
 - Jest powers `actions/role-sync` tests in `__tests__/*.test.ts`; avoid live GitHub/Azure calls—mock interfaces instead. Table-driven cases help cover role mapping and discussion templates.
