@@ -362,7 +362,7 @@ Azure Cloud Adoption Frameworkの[リソース省略形ガイダンス](https://
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [docs/developer-guide.md](docs/developer-guide.md) | 開発環境構築、テスト、リリース手順 |
+| [docs/developer-guide.ja.md](docs/developer-guide.ja.md) | 開発環境構築、テスト、リリース手順 |
 
 各Actionのサブモジュールにも詳細なドキュメントがあります：
 
