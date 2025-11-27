@@ -50,10 +50,10 @@ jobs:
         with:
           node-version-file: ${{ matrix.node_version_file }}
           cache: npm
-          cache-dependency-path: ${{ matrix.workdir }}/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
-        run: npm --prefix '${{ matrix.workdir }}' ci
+        run: npm ci
 
       - name: Format Check
         run: npm --prefix '${{ matrix.workdir }}' run ${{ matrix.format_script }}
@@ -106,11 +106,11 @@ jobs:
         with:
           node-version-file: ${{ matrix.node_version_file }}
           cache: npm
-          cache-dependency-path: ${{ matrix.workdir }}/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
-        run: npm --prefix '${{ matrix.workdir }}' ci
+        run: npm ci
 
       - name: npm audit (production, high+)
-        run: npm --prefix '${{ matrix.workdir }}' audit --omit=dev --audit-level=high
+        run: npm audit --workspace ${{ matrix.workdir }} --omit=dev --audit-level=high
 
