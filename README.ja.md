@@ -18,7 +18,7 @@ GitHubリポジトリ上のドキュメントをSWAでホストする際、「�
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-- [Azureリソースの作成](#azureリソースの作成)
+- [Creating Azure Resources](#creating-azure-resources)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 - [Documentation](#documentation)
@@ -252,7 +252,7 @@ gh workflow run cleanup-invite-discussions.yml --ref main
 - 招待Discussionが指定カテゴリーに作成され、本文に招待URLが含まれます。
 - 掃除ワークフローは削除した件数を出力します。
 
-## Azureリソースの作成
+## Creating Azure Resources
 
 Azureリソースが未作成の場合、以下の手順でリソースグループ、Static Web App、マネージドIDを作成し、GitHub ActionsからOIDCでログインできるよう設定します。
 
