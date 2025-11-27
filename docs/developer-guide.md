@@ -44,6 +44,7 @@ swa-github-role-sync-ops/
 │   │   └── action.yml               # Action definition
 │   └── discussion-cleanup/      # swa-github-discussion-cleanup (submodule)
 │       ├── src/                     # TypeScript source
+│       ├── __tests__/               # Jest tests
 │       ├── dist/                    # Build artifacts (tracked)
 │       └── action.yml               # Action definition
 ├── docs/
@@ -67,7 +68,7 @@ npm run verify
 # Verify Role Sync Action only
 npm run verify:role-sync
 
-# Build Discussion Cleanup only
+# Verify Discussion Cleanup only (format + test + package)
 npm run verify:discussion-cleanup
 ```
 
@@ -99,11 +100,22 @@ npm run local-action
 ```bash
 cd actions/discussion-cleanup
 npm ci
+npm run verify   # format + test + dist check
 npm run package  # rollup build + dist update
 ```
 
-- Tests are not yet set up, so implement with small pure functions in mind to prepare for future test additions.
+- Use TDD: write tests first, then cycle through RED-GREEN-REFACTOR.
+- Regenerate `dist/` with `npm run package`; do not edit manually.
 - When inputs change, update `action.yml` and documentation in this repository.
+
+### Running Tests
+
+```bash
+cd actions/discussion-cleanup
+npm test         # Run tests (Jest + ESM)
+```
+
+Tests are in `__tests__/`, consisting of unit tests for pure functions (`index.test.ts`) and integration tests for the `run` function (`main.test.ts`).
 
 ## Test-Driven Development
 

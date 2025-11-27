@@ -44,6 +44,7 @@ swa-github-role-sync-ops/
 │   │   └── action.yml               # Action定義
 │   └── discussion-cleanup/      # swa-github-discussion-cleanup (サブモジュール)
 │       ├── src/                     # TypeScriptソース
+│       ├── __tests__/               # Jestテスト
 │       ├── dist/                    # ビルド成果物（追跡対象）
 │       └── action.yml               # Action定義
 ├── docs/
@@ -67,7 +68,7 @@ npm run verify
 # Role Sync Actionのみ検証
 npm run verify:role-sync
 
-# Discussion Cleanupのみビルド
+# Discussion Cleanupのみ検証（format + test + package）
 npm run verify:discussion-cleanup
 ```
 
@@ -99,11 +100,22 @@ npm run local-action
 ```bash
 cd actions/discussion-cleanup
 npm ci
+npm run verify   # format + test + distチェック
 npm run package  # rollup build + dist更新
 ```
 
-- 現状テストは未整備のため、小さな純粋関数を意識して実装し、将来のテスト追加に備えます。
+- TDDで開発し、テストを先に書いてからRED-GREEN-REFACTORを回します。
+- `dist/`は`npm run package`で上書きし、手編集しないでください。
 - 入力変更があれば`action.yml`と本リポジトリのドキュメントも更新します。
+
+### テスト実行
+
+```bash
+cd actions/discussion-cleanup
+npm test         # テスト実行（Jest + ESM）
+```
+
+テストは`__tests__/`配下にあり、純粋関数のユニットテスト（`index.test.ts`）と`run`関数の統合テスト（`main.test.ts`）で構成されています。
 
 ## テスト駆動開発
 
