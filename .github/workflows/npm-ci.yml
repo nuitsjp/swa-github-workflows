@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson('{"include":[{"id":"role-sync","display_name":"Role Sync","workdir":"actions/role-sync","node_version_file":"actions/role-sync/.node-version","format_script":"format:check","lint_script":"lint","test_script":"ci-test","package_script":"package","dist_path":"dist"},{"id":"discussion-cleanup","display_name":"Discussion Cleanup","workdir":"actions/discussion-cleanup","node_version_file":"actions/discussion-cleanup/.node-version","format_script":"format:check","lint_script":"","test_script":"","package_script":"package","dist_path":"dist"}]}') }}
+      matrix: ${{ fromJson('{"include":[{"id":"role-sync","display_name":"Role Sync","workdir":"actions/role-sync","node_version_file":"actions/role-sync/.node-version","format_script":"format:check","lint_script":"lint","test_script":"ci-test","package_script":"package","dist_path":"dist"},{"id":"discussion-cleanup","display_name":"Discussion Cleanup","workdir":"actions/discussion-cleanup","node_version_file":"actions/discussion-cleanup/.node-version","format_script":"format:check","lint_script":"","test_script":"ci-test","package_script":"package","dist_path":"dist"}]}') }}
     steps:
       - uses: actions/checkout@v4
         with:

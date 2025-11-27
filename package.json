@@ -12,10 +12,10 @@
     "format:write": "npm run format:write --workspace actions/role-sync && npm run format:write --workspace actions/discussion-cleanup",
     "format:check": "npm run format:check --workspace actions/role-sync && npm run format:check --workspace actions/discussion-cleanup",
     "lint": "npm run lint --workspace actions/role-sync",
-    "test": "npm run ci-test --workspace actions/role-sync",
+    "test": "npm run ci-test --workspace actions/role-sync && npm run ci-test --workspace actions/discussion-cleanup",
     "package": "npm run package --workspace actions/role-sync && npm run package --workspace actions/discussion-cleanup",
     "verify:role-sync": "npm run verify --workspace actions/role-sync",
-    "verify:discussion-cleanup": "npm run package --workspace actions/discussion-cleanup",
+    "verify:discussion-cleanup": "npm run verify --workspace actions/discussion-cleanup",
     "verify": "npm run verify:role-sync && npm run verify:discussion-cleanup"
   }
 }
